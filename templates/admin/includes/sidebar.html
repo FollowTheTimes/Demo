@@ -1,0 +1,19 @@
+{% load i18n %}
+<div class="app-list">
+    {% for app in app_list %}
+        <div class="app">
+            <a href="{{ app.app_url }}" class="app-link {% if app.app_label == request.resolver_match.app_name %}current-app{% endif %}">
+                {{ app.name }}
+            </a>
+            {% if app.models %}
+                <div class="model-list">
+                    {% for model in app.models %}
+                        <a href="{{ model.admin_url }}" class="model-link">
+                            {{ model.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>

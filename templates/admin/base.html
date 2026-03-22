@@ -1,0 +1,450 @@
+{% load i18n static %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
+    {% block extrastyle %}{% endblock %}
+    {% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">
+    {% endif %}
+    {% block extrahead %}{% endblock %}
+    {% block responsive %}
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive.css" %}">
+        {% if LANGUAGE_BIDI %}
+        <link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive_rtl.css" %}">
+        {% endif %}
+    {% endblock %}
+    {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* 顶部导航栏 */
+        #header {
+            background-color: #1a202c;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            z-index: 100;
+        }
+        
+        #header a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        #branding h1 {
+            font-size: 24px;
+            margin: 0;
+            color: white;
+        }
+        
+        /* 主容器 */
+        #main-container {
+            display: flex;
+            flex: 1;
+        }
+        
+        /* 侧边栏 */
+        #sidebar {
+            width: 200px;
+            background-color: #2d3748;
+            color: white;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+        
+        #sidebar h2 {
+            font-size: 18px;
+            color: white;
+            margin: 0 20px 15px 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4CAF50;
+        }
+        
+        #sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        #sidebar li {
+            margin-bottom: 5px;
+        }
+        
+        #sidebar a {
+            font-size: 16px;
+            color: #e2e8f0;
+            text-decoration: none;
+            display: block;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+        
+        #sidebar a:hover {
+            background-color: #4a5568;
+            color: #4CAF50;
+        }
+        
+        #sidebar .current-app {
+            background-color: #4a5568;
+        }
+        
+        #sidebar .current-model {
+            background-color: #4a5568;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        /* 主内容区域 */
+        #content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background-color: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        tr:hover {
+            background-color: #f7fafc;
+        }
+        
+        /* 按钮样式 */
+        .button, input[type="submit"], input[type="button"], .submit-row input {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .button:hover, input[type="submit"]:hover, input[type="button"]:hover, .submit-row input:hover {
+            background-color: #45a049;
+        }
+        
+        /* 搜索框样式 */
+        #changelist-search input {
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 8px 12px;
+            width: 300px;
+            font-size: 14px;
+        }
+        
+        /* 筛选器样式 */
+        .filtered {
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 15px;
+            background-color: #f7fafc;
+            margin-bottom: 20px;
+        }
+        
+        /* 状态标签样式 */
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .status-normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        /* 分页样式 */
+        .paginator {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .paginator a {
+            color: #4CAF50;
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            margin: 0 2px;
+            transition: background-color 0.3s;
+        }
+        
+        .paginator a:hover {
+            background-color: #e2e8f0;
+        }
+        
+        .paginator .this-page {
+            color: white;
+            background-color: #4CAF50;
+            padding: 6px 12px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            margin: 0 2px;
+        }
+        
+        /* 修复分页列表样式 */
+        .paginator ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .paginator li {
+            margin: 0 2px;
+        }
+        
+        .paginator li a {
+            display: inline-block;
+        }
+        
+        .paginator li.this-page {
+            display: inline-block;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumbs {
+            background-color: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .breadcrumbs a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        
+        /* 标题样式 */
+        h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #4a5568;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        /* 用户工具 */
+        #user-tools {
+            font-size: 14px;
+            background-color: #1a202c;
+            padding: 10px 0;
+        }
+        
+        #user-tools a {
+            color: white;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        
+        #user-tools a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            #main-container {
+                flex-direction: column;
+            }
+            
+            #sidebar {
+                width: 100%;
+                padding: 10px 0;
+            }
+            
+            #sidebar h2 {
+                margin: 0 10px 10px 10px;
+            }
+            
+            #sidebar a {
+                padding: 8px 10px;
+            }
+            
+            #content {
+                padding: 10px;
+            }
+        }
+        
+        /* 对象工具样式 */
+        .object-tools {
+            margin-bottom: 20px;
+        }
+        
+        .object-tools li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .object-tools a {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .object-tools a:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <div id="branding">
+            {% block branding %}
+                <h1>秒杀管理系统</h1>
+            {% endblock %}
+        </div>
+        {% block usertools %}
+        <div id="user-tools">
+            {% block welcome-msg %}
+                {% trans 'Welcome,' %} <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+            {% endblock %}
+            {% block userlinks %}
+                {% if site_url %}
+                    <a href="{{ site_url }}">{% trans 'View site' %}</a> /
+                {% endif %}
+                {% if user.is_active and user.is_staff %}
+                    {% url 'django-admindocs-docroot' as docsroot %}
+                    {% if docsroot %}
+                        <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
+                    {% endif %}
+                {% endif %}
+                {% if user.has_usable_password %}
+                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a>
+                {% endif %}
+
+            {% endblock %}
+        </div>
+        {% endblock %}
+        {% block nav-global %}{% endblock %}
+    </div>
+    
+    <div id="main-container">
+        <div id="sidebar">
+            <h2>Seckill</h2>
+            <ul>
+                <li>
+                    <a href="/admin/seckill/product/" {% if '/admin/seckill/product/' in request.path %}class="current-model"{% endif %}>
+                        商品
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/seckill/seckillactivity/" {% if '/admin/seckill/seckillactivity/' in request.path %}class="current-model"{% endif %}>
+                        秒杀活动
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/seckill/order/" {% if '/admin/seckill/order/' in request.path %}class="current-model"{% endif %}>
+                        订单
+                    </a>
+                </li>
+            </ul>
+            <h2>Users</h2>
+            <ul>
+                <li>
+                    <a href="/admin/users/user/" {% if '/admin/users/user/' in request.path %}class="current-model"{% endif %}>
+                        用户
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="content">
+            {% block pretitle %}{% endblock %}
+            {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+            {% block breadcrumbs %}
+                <div class="breadcrumbs">
+                    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+                    {% if title %}
+                        &rsaquo; {{ title }}
+                    {% endif %}
+                </div>
+            {% endblock %}
+            
+            {% block content %}
+                {% block object-tools %}{% endblock %}
+                {{ content }}
+            {% endblock %}
+            {% block sidebar_content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

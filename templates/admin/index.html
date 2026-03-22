@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Site administration' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans '秒杀管理系统' %}</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    </div>
+    <div class="module">
+        <h2 style="font-size: 24px;">欢迎使用秒杀管理系统</h2>
+        <p style="font-size: 16px;">从侧边栏选择一个模型来管理其数据。</p>
+    </div>
+</div>
+{% endblock %}
