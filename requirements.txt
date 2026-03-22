@@ -1,0 +1,12 @@
+Django==6.0.3
+djangorestframework
+redis
+django-redis
+pymysql
+mysqlclient
+uwsgi
+celery
+flower
+pyyaml
+python-dotenv
+psutil

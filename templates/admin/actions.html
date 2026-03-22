@@ -1,0 +1,33 @@
+{% load i18n admin_urls %}
+{% if actions_selection_counter %}<div class="actions" style="margin-bottom: 10px;">
+    {% for field in action_form %}
+    {% if field.label_tag %}{{ field.label_tag }}{% endif %}
+    {{ field }}
+    {% if forloop.first %}
+    <button type="submit" class="button" style="background-color: #4CAF50; color: white; padding: 4px 12px; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px;">
+        确定
+    </button>
+    {% endif %}
+    {% if actions_available %}
+    {% endif %}
+    {% endfor %}
+</div>{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 找到action选择框
+        const actionSelect = document.querySelector('select[name="action"]');
+        if (actionSelect) {
+            // 去掉空选项（横线）
+            const options = actionSelect.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === '') {
+                    options[i].remove();
+                    break;
+                }
+            }
+            // 默认选择第一个选项（删除所选的商品）
+            actionSelect.selectedIndex = 0;
+        }
+    });
+</script>

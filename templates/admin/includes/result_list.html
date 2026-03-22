@@ -1,0 +1,55 @@
+{% load i18n admin_urls %}<table id="result_list">
+  <thead>
+    <tr>
+      {% for header in result_headers %}
+      <th scope="col" {{ header.class_attrib }}>
+        {% if header.sortable %}
+          {% if header.sort_priority > 0 %}
+            <div class="sortoptions">
+              <a class="sortremove" href="{{ header.url_remove }}" title="{% trans "Remove from sorting" %}"></a>
+              {% if num_sorted_fields > 1 %}
+                <span class="sortpriority" title="{% blocktrans with priority=header.sort_priority %}Sorting priority: {{ priority }}{% endblocktrans %}">{{ header.sort_priority }}</span>
+              {% endif %}
+              <a href="{{ header.url_toggle }}" class="toggle {% if header.ascending %}ascending{% else %}{% endif %}"></a>
+            </div>
+          {% endif %}
+        {% endif %}
+        <div class="text">{% if header.sortable %}{% if header.sort_priority > 0 %}<a href="{{ header.url_primary }}">{{ header.text|capfirst }}</a>{% else %}<a href="{{ header.url_primary }}">{{ header.text|capfirst }}</a>{% endif %}{% else %}{{ header.text|capfirst }}{% endif %}</div>
+        <div class="clear"></div>
+      </th>
+      {% endfor %}
+      <th scope="col" style="text-align: center; width: 120px;">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for result in results %}
+    {% if result.form and result.form.non_field_errors %}
+    <tr>
+      <td colspan="{{ result|length|add:1 }}">
+        {{ result.form.non_field_errors }}
+      </td>
+    </tr>
+    {% endif %}
+    <tr class="{% cycle 'row1' 'row2' %}">
+      {% for item in result %}
+        {{ item }}
+      {% endfor %}
+      <td style="text-align: center;">
+        {% with result|first as first_item %}
+          {% if first_item.field %}
+            {% url cl.opts|admin_urlname:'change' first_item.value as change_url %}
+            <a href="{{ change_url }}" style="background-color: #4CAF50; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; margin-right: 5px;">修改</a>
+            {% url cl.opts|admin_urlname:'delete' first_item.value as delete_url %}
+            <a href="{{ delete_url }}" style="background-color: #f44336; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none;">删除</a>
+          {% elif result.0 %}
+            {% url cl.opts|admin_urlname:'change' result.0 as change_url %}
+            <a href="{{ change_url }}" style="background-color: #4CAF50; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; margin-right: 5px;">修改</a>
+            {% url cl.opts|admin_urlname:'delete' result.0 as delete_url %}
+            <a href="{{ delete_url }}" style="background-color: #f44336; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none;">删除</a>
+          {% endif %}
+        {% endwith %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
