@@ -1,7 +1,5 @@
 from django.db import models
 from django.db.models import UniqueConstraint
-import random
-import string
 from cryptography.fernet import Fernet
 import os
 

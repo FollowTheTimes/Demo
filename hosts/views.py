@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from .models import City, Datacenter, Host
 from .serializers import CitySerializer, DatacenterSerializer, HostSerializer, HostDetailSerializer
 import subprocess
-import time
 
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
